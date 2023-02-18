@@ -41,8 +41,8 @@ const uploadFile = async (req,res) => {
                 size
             })
         })
-        uploadStream.on('error', () => {
-            console.log("storage послал тебя нахуй")
+        uploadStream.on('error', (error) => {
+            console.log("storage послал тебя нахуй", error)
         })
         res.json({
             message:"Succesfully uploaded",
