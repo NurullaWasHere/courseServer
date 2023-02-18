@@ -68,9 +68,12 @@ const getAllVideos = async (req, res) => {
 const getVideo = async (req,res) => {
     try {
         const {name} = req.params;
-        console.log(req.headers)
+        // console.log(req.headers)
         let range = req.headers.range
         if(!range) range = 'bytes=0-'
+        if(req.headers.referer !== "https://course-client-nine.vercel.app/"){
+            return res.json({message: "No acces from another domain"})
+        }
         const myBucket = storage.bucket('coursebuckets');
         const file = myBucket.file(name);
         if(!file){
