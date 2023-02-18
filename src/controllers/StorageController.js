@@ -22,7 +22,7 @@ const uploadFile = async (req,res) => {
                 code: 401
             })
         }
-        const myBucket = storage.bucket('nurullacloud');
+        const myBucket = storage.bucket('coursebuckets');
         const {size, originalname} = req.file;
         const file = myBucket.file(originalname);
         const readableStream = new Readable({
@@ -71,7 +71,7 @@ const getVideo = async (req,res) => {
         console.log(req.headers)
         let range = req.headers.range
         if(!range) range = 'bytes=0-'
-        const myBucket = storage.bucket('nurullacloud');
+        const myBucket = storage.bucket('coursebuckets');
         const file = myBucket.file(name);
         if(!file){
             return res.json({
@@ -116,7 +116,7 @@ const deleteVideo = async (req,res) => {
                 code:402
             })
         }
-        const myBucket = storage.bucket('nurullacloud');
+        const myBucket = storage.bucket('coursebuckets');
         const file = myBucket.file(name);
         await file.delete();
         await video.destroy();
