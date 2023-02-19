@@ -78,7 +78,6 @@ const getUsersByCourse = async (req,res) => {
         id
       }
     })
-    console.log(course)
     if(!course){
       return res.json({
         message:"NOT FOUND"
@@ -283,7 +282,6 @@ const deleteUserFromCourse = async (req, res) => {
 const getVideosFromCourse = async (req,res) => {
     try {
         const {id} = req.params;
-        console.log(id);
         if(!id){
             return res.json({
                 message:"Укажите курс"
