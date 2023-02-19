@@ -3,6 +3,8 @@ const fs = require("fs");
 const {Storage} = require('@google-cloud/storage')
 const {Readable} = require('stream');
 const jwt = require('jsonwebtoken')
+const utf = require('utf8')
+
 require('dotenv').config()
 
 const storage = new Storage({keyFilename: "./static/key.json"});
@@ -22,8 +24,11 @@ const uploadFile = async (req,res) => {
                 code: 401
             })
         }
+
+
         const myBucket = storage.bucket('coursebuckets');
         const {size, originalname} = req.file;
+        originalname = utf.decode(originalname);
         const file = myBucket.file(originalname);
         const readableStream = new Readable({
             read(size){
