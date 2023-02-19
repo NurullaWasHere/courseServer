@@ -76,6 +76,7 @@ const getVideo = async (req,res) => {
         // console.log(req.headers)
         let range = req.headers.range
         console.log(req.headers);
+        
         if(!range) range = 'bytes=0-'
         if(req.headers.referer !== "https://course-client-nine.vercel.app/"){
             return res.json({message: "No acces from another domain"})
@@ -95,6 +96,10 @@ const getVideo = async (req,res) => {
         const start = Number(range.replace(/\D/g, ''));
         const end = Math.min(start+ chunkSize, videoSize - 1);
         const contentLength = end - start + 1;
+        if(range === "bytes=0-1"){
+            contentLength = 1;
+            end = 1;
+        }
         const headers = {
             "Content-Range": `bytes ${start} - ${end} / ${videoSize}`,
             "Accept-Ranges": 'bytes',
