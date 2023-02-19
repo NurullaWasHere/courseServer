@@ -98,7 +98,6 @@ const getVideo = async (req,res) => {
         let contentLength = end - start + 1;
         if(range === "bytes=0-1"){
             contentLength = 1;
-            end = 1;
         }
         const headers = {
             "Content-Range": `bytes ${start} - ${end} / ${videoSize}`,
