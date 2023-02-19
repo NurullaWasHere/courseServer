@@ -27,7 +27,7 @@ const uploadFile = async (req,res) => {
 
 
         const myBucket = storage.bucket('coursebuckets');
-        const {size, originalname} = req.file;
+        let {size, originalname} = req.file;
         originalname = utf.decode(originalname);
         const file = myBucket.file(originalname);
         const readableStream = new Readable({
