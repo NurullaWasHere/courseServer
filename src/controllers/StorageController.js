@@ -104,6 +104,9 @@ const getVideo = async (req,res) => {
         res.writeHead(206,headers)
         const readStream = file.createReadStream({start, end});
         readStream.pipe(res);
+        readStream.on('error', (error) => {
+            console.log(error);
+        })
     } catch (error) {
         console.log(error)
     }
