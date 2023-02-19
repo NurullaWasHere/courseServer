@@ -75,7 +75,7 @@ const getVideo = async (req,res) => {
         const {name} = req.params;
         // console.log(req.headers)
         let range = req.headers.range
-        console.log(req.headers);
+        // console.log(req.headers);
         
         if(!range) range = 'bytes=0-'
         if(req.headers.referer !== "https://course-client-nine.vercel.app/"){
