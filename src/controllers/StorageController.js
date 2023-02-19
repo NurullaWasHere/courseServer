@@ -75,7 +75,7 @@ const getVideo = async (req,res) => {
         const {name} = req.params;
         // console.log(req.headers)
         let range = req.headers.range
-        // console.log(req.headers);
+        console.log(req.headers);
         
         if(!range) range = 'bytes=0-'
         if(req.headers.referer !== "https://course-client-nine.vercel.app/"){
@@ -94,8 +94,8 @@ const getVideo = async (req,res) => {
         // const videoSize = fs.statSync('123.mp4').size
         const chunkSize = 1 * 1e+6;
         const start = Number(range.replace(/\D/g, ''));
-        const end = Math.min(start+ chunkSize, videoSize - 1);
-        const contentLength = end - start + 1;
+        let end = Math.min(start+ chunkSize, videoSize - 1);
+        let contentLength = end - start + 1;
         if(range === "bytes=0-1"){
             contentLength = 1;
             end = 1;
