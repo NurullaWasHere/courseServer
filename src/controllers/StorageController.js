@@ -82,6 +82,38 @@ const getVideo = async (req,res) => {
         if(req.headers.referer !== "https://course-client-nine.vercel.app/"){
             return res.json({message: "No acces from another domain"})
         }
+        
+        const options = {};
+        let start;
+        let end;
+
+        if (range) {
+            const bytesPrefix = "bytes=";
+            if (range.startsWith(bytesPrefix)) {
+                const bytesRange = range.substring(bytesPrefix.length);
+                const parts = bytesRange.split("-");
+                if (parts.length === 2) {
+                    const rangeStart = parts[0] && parts[0].trim();
+                    if (rangeStart && rangeStart.length > 0) {
+                        options.start = start = parseInt(rangeStart);
+                    }
+                    const rangeEnd = parts[1] && parts[1].trim();
+                    if (rangeEnd && rangeEnd.length > 0) {
+                        options.end = end = parseInt(rangeEnd);
+                    }
+                }
+            }
+        }
+
+        if (req.method === "HEAD") {
+            res.statusCode = 200;
+            res.setHeader("accept-ranges", "bytes");
+            res.setHeader("content-length", contentLength);
+            res.end();
+        }
+
+        
+
         const myBucket = storage.bucket('coursebuckets');
         const file = myBucket.file(name);
         if(!file){
@@ -90,42 +122,47 @@ const getVideo = async (req,res) => {
                 code:401
             })
         }
+        
         const [metadata] = await file.getMetadata();
         const videoSize = metadata.size;
-        // const videoSize = fs.statSync('123.mp4').size
-        const chunkSize = 1 * 1e+6;
-        const start = Number(range.replace(/\D/g, ''));
-        let end = Math.min(start+ chunkSize, videoSize - 1);
-        let contentLength = end - start + 1;
+
+        let contentLength = videoSize;
+
+        let retrievedLength;
+        if (start !== undefined && end !== undefined) {
+            retrievedLength = (end+1) - start;
+        }
+        else if (start !== undefined) {
+            retrievedLength = contentLength - start;
+        }
+        else if (end !== undefined) {
+            retrievedLength = (end+1);
+        }
+        else {
+            retrievedLength = contentLength;
+        }
+        // const chunkSize = 1 * 1e+6;
+        // const start = Number(range.replace(/\D/g, ''));
+
+        // let end = Math.min(start+ chunkSize, videoSize - 1);
+        // let contentLength = end - start + 1;
+
+        
 
         const headers = {
-            "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+            "Content-Range": `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`,
             "Accept-Ranges": 'bytes',
-            "Content-Length" : contentLength,
+            "Content-Length" : retrievedLength,
             "Content-Type" : 'video/mp4'
         }
 
+        if (range !== undefined) {  
+            res.setHeader("Content-Range", `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`);
+            res.setHeader("Accept-Ranges", "bytes");
+        }
+
         res.writeHead(206,headers)
-
-        // if (req.headers['user-agent'].indexOf('Safari')){
-        //     const transcoder = ffmpeg(file.createReadStream({start, end}))
-        //     .format('mp4')
-        //     .videoCodec('libx264')
-        //     .audioCodec('aac')
-        //     .outputOptions([
-        //       '-profile:v baseline',
-        //       '-level 3.0',
-        //       '-movflags +faststart',
-        //     ])
-        //     .on('error', (err) => {
-        //       console.log(err);
-        //     });
-        
-        //   transcoder.pipe(res, { end: true });
-        // }
-
-
-            const readStream = file.createReadStream({start, end});
+            const readStream = file.createReadStream(options);
             readStream.pipe(res);
             readStream.on('error', (error) => {
                 console.log(error);
