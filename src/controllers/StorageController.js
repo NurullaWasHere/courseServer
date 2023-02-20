@@ -4,6 +4,7 @@ const {Storage} = require('@google-cloud/storage')
 const {Readable} = require('stream');
 const jwt = require('jsonwebtoken')
 const utf = require('utf8')
+const ffmpeg = require('ffmpeg')
 
 require('dotenv').config()
 
@@ -103,12 +104,33 @@ const getVideo = async (req,res) => {
             "Content-Length" : contentLength,
             "Content-Type" : 'video/mp4'
         }
+
         res.writeHead(206,headers)
-        const readStream = file.createReadStream({start, end});
-        readStream.pipe(res);
-        readStream.on('error', (error) => {
-            console.log(error);
-        })
+
+        if (req.headers['user-agent'].indexOf('Safari')){
+            const transcoder = ffmpeg(file.createReadStream({start, end}))
+            .format('mp4')
+            .videoCodec('libx264')
+            .audioCodec('aac')
+            .outputOptions([
+              '-profile:v baseline',
+              '-level 3.0',
+              '-movflags +faststart',
+            ])
+            .on('error', (err) => {
+              console.log(err);
+            });
+        
+          transcoder.pipe(res, { end: true });
+        }
+
+        else{
+            const readStream = file.createReadStream({start, end});
+            readStream.pipe(res);
+            readStream.on('error', (error) => {
+                console.log(error);
+            })
+        }
     } catch (error) {
         console.log(error)
     }
