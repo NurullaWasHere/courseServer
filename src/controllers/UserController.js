@@ -77,7 +77,7 @@ const loginUser = async (req,res) => {
             name:user.name
         },
         process.env.SECRET_KEY,
-        {expiresIn: '24h'});
+        {expiresIn: '1000h'});
         return res.json({
             token
         });
