@@ -76,8 +76,6 @@ const getVideo = async (req,res) => {
         const {name} = req.params;
         // console.log(req.headers)
         let range = req.headers.range
-        console.log(req.headers);
-        
         // if(!range) range = 'bytes=0-'
         if(req.headers.referer !== "https://course-client-nine.vercel.app/"){
             return res.json({message: "No acces from another domain"})
@@ -114,13 +112,17 @@ const getVideo = async (req,res) => {
 
         
 
-        const myBucket = storage.bucket('coursebuckets');
-        const file = myBucket.file(name);
-        if(!file){
-            return res.json({
-                message:"File not found",
-                code:401
-            })
+        try {
+            const myBucket = storage.bucket('coursebuckets');
+            const file = myBucket.file(name);
+            if(!file){
+                return res.json({
+                    message:"File not found",
+                    code:401
+                })
+            }
+        } catch (error) {
+            console.log(error)
         }
         
         const [metadata] = await file.getMetadata();
