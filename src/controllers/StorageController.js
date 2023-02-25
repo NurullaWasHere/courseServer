@@ -112,7 +112,6 @@ const getVideo = async (req,res) => {
 
         
 
-        try {
             const myBucket = storage.bucket('coursebuckets');
             const file = myBucket.file(name);
             if(!file){
@@ -121,9 +120,7 @@ const getVideo = async (req,res) => {
                     code:401
                 })
             }
-        } catch (error) {
-            console.log(error)
-        }
+
         
         const [metadata] = await file.getMetadata();
         const videoSize = metadata.size;
