@@ -102,10 +102,7 @@ const getVideo = async (req,res) => {
                 }
             }
         }
-        const [metadata] = await file.getMetadata();
-        const videoSize = metadata.size;
-        let contentLength = videoSize;
-        res.setHeader("content-type", "video/mp4");
+
         if (req.method === "HEAD") {
             res.statusCode = 200;
             res.setHeader("accept-ranges", "bytes");
@@ -114,14 +111,20 @@ const getVideo = async (req,res) => {
         }
 
     
-        const myBucket = storage.bucket('coursebuckets');
-        const file = myBucket.file(name);
-        if(!file){
-            return res.json({
-                message:"File not found",
+            const myBucket = storage.bucket('coursebuckets');
+            const file = myBucket.file(name);
+            if(!file){
+                return res.json({
+                    message:"File not found",
                     code:401
                 })
             }
+
+        
+        const [metadata] = await file.getMetadata();
+        const videoSize = metadata.size;
+
+        let contentLength = videoSize;
 
         let retrievedLength;
         if (start !== undefined && end !== undefined) {
@@ -136,24 +139,32 @@ const getVideo = async (req,res) => {
         else {
             retrievedLength = contentLength;
         }
+        // const chunkSize = 1 * 1e+6;
+        // const start = Number(range.replace(/\D/g, ''));
 
-        // const headers = {
-        //     "Content-Range": `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`,
-        //     "Accept-Ranges": 'bytes',
-        //     "Content-Length" : retrievedLength,
-        //     "Content-Type" : 'video/mp4'
-        // }
+        // let end = Math.min(start+ chunkSize, videoSize - 1);
+        // let contentLength = end - start + 1;
+
+        
+
+        const headers = {
+            "Content-Range": `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`,
+            "Accept-Ranges": 'bytes',
+            "Content-Length" : retrievedLength,
+            "Content-Type" : 'video/mp4'
+        }
 
         if (range !== undefined) {  
             res.setHeader("Content-Range", `bytes ${start || 0}-${end || (contentLength-1)}/${contentLength}`);
             res.setHeader("Accept-Ranges", "bytes");
         }
 
-        const readStream = file.createReadStream(options);
-        readStream.pipe(res);
-        readStream.on('error', (error) => {
-            console.log(error);
-        })
+        res.writeHead(206,headers)
+            const readStream = file.createReadStream(options);
+            readStream.pipe(res);
+            readStream.on('error', (error) => {
+                console.log(error);
+            })
 
     } catch (error) {
         console.log(error)
