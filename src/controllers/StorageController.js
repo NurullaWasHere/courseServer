@@ -60,6 +60,35 @@ const uploadFile = async (req,res) => {
 }
 
 
+const createVideo  = async (req,res) => {
+    try {
+        const {link, name} = req.body;
+        if(!link){
+            return res.json({
+                message:"Link empty"
+            })
+        }
+        const isExist = await VideoModel.findOne({where: {name: name}});
+        if(isExist){
+            return res.json({
+                message:"File already exist",
+                code: 401
+            })
+        }
+        name = utf.decode(name);
+        const video = await VideoModel.create({
+            link: link,
+            name: name, 
+            size:"0"
+        })
+        res.json({
+            video
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 const getAllVideos = async (req, res) => {
     try {
       const courses = await VideoModel.findAll();
@@ -203,5 +232,6 @@ module.exports = {
     uploadFile,
     getVideo,
     deleteVideo,
-    getAllVideos
+    getAllVideos,
+    createVideo
 }

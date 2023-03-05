@@ -1,7 +1,7 @@
 const {Router} = require('express')
 
 const {createUser, getAllUsers, deleteUser} = require('../controllers/UserController')
-const {uploadFile, deleteVideo, getAllVideos} = require('../controllers/StorageController')
+const {uploadFile, deleteVideo, getAllVideos, createVideo} = require('../controllers/StorageController')
 const {createCourse,getUsersByCourse,addUserToCourse, addVideoToCourse, deleteVideoFromCourse, getAllCourses, getCoursesById, deleteUserFromCourse, getVideosFromCourse, deleteCourse} = require('../controllers/CourseController');
 const isAdminMiddleware = require('../middlewares/isAdmin');
 const multer = require('multer')
@@ -28,6 +28,7 @@ router.get('/videos/:id', isAdminMiddleware, getVideosFromCourse)
 router.post('/createUser',isAdminMiddleware, createUser);
 router.post('/uploadFile', isAdminMiddleware, upload.single('video'), uploadFile);
 router.post('/createCourse', isAdminMiddleware, createCourse);
+router.post('/createVideo', isAdminMiddleware, createVideo);
 
 router.delete('/deleteVideo', isAdminMiddleware, deleteVideo);
 router.delete('/deleteVideoFromCourse', isAdminMiddleware, deleteVideoFromCourse);
