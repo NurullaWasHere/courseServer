@@ -62,12 +62,13 @@ const uploadFile = async (req,res) => {
 
 const createVideo  = async (req,res) => {
     try {
-        const {link, name} = req.body;
+        let {link, name} = req.body;
         if(!link){
             return res.json({
                 message:"Link empty"
             })
         }
+        link = link.replaceAll('"', '');
         const isExist = await VideoModel.findOne({where: {name: name}});
         if(isExist){
             return res.json({
