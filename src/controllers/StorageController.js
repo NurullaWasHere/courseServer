@@ -68,6 +68,7 @@ const createVideo  = async (req,res) => {
                 message:"Link empty"
             })
         }
+        console.log(link, name)
         link = link.replaceAll('"', '');
         const isExist = await VideoModel.findOne({where: {name: name}});
         if(isExist){
@@ -80,7 +81,7 @@ const createVideo  = async (req,res) => {
         const video = await VideoModel.create({
             link: link,
             name: name, 
-            size:"0"
+            size: 1 
         })
         res.json({
             video
