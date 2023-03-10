@@ -77,7 +77,7 @@ const createVideo  = async (req,res) => {
                 code: 401
             })
         }
-        name = utf.decode(name);
+        // name = utf.decode(name);
         const video = await VideoModel.create({
             link: link,
             name: name, 
