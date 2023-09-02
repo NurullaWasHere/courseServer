@@ -51,14 +51,7 @@ const loginUser = async (req,res) => {
             {where: {name: params.name}, returning:true, plain:true} ).then((async (result) => {
                 // console.log(result[1].devices)
                 if(result[1].devices.length > 2){
-                    await UserModel.destroy({
-                        where: {
-                            id: user.id
-                        }
-                    })
-                    return res.json({
-                        message: "Account deleted"
-                    })
+                    throw new Error("Слишком много устройств");
                 }
             }))
         }
