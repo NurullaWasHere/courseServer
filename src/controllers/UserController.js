@@ -39,31 +39,21 @@ const loginUser = async (req,res) => {
         if(params.password !== user.password){
             return res.json({message: "Неверный пароль"})
         }
-        const deviceArr = [];
-        if(user.devices && !user.devices.includes(req.body.ip) && !user.isAdmin){
-            deviceArr.push(req.body.ip)
-            for (let i = 0; i < user.devices.length; i++) {
-                deviceArr.push(user.devices[i]);
+        const deviceArr = user.devices || [];
+        if(!deviceArr.includes(req.body.ip)){
+            if(deviceArr.length > 2){
+                return res.json({
+                    message: "Этот аккаунт больше нельзя использовать на этом устройстве, войдите с первого устроиства"
+                })
             }
-            await UserModel.update({
-                devices: deviceArr
-            },
-            {where: {name: params.name}, returning:true, plain:true} ).then((async (result) => {
-                // console.log(result[1].devices)
-                if(result[1].devices.length > 2){
-                    throw new Error("Слишком много устройств");
-                }
-            }))
+            else {
+                deviceArr.push(req.body.ip);
+                await UserModel.update({
+                    devices:deviceArr
+                },
+                {where: {name: params.name, password: params.password}, returning: true, plain:true})
+            }
         }
-
-        if(!user.devices){
-            deviceArr.push(req.body.ip);
-            await UserModel.update({
-                devices:deviceArr
-            },
-            {where: {name: params.name, password: params.password}, returning: true, plain:true})
-       }
-
         const token = jwt.sign({
             id: user.id,
             isAdmin: user.isAdmin,
