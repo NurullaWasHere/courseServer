@@ -40,7 +40,7 @@ const loginUser = async (req,res) => {
             return res.json({message: "Неверный пароль"})
         }
         const deviceArr = user.devices || [];
-        if(!deviceArr.includes(req.body.ip)){
+        if(!deviceArr.includes(req.body.ip) && !user.isAdmin){
             if(deviceArr.length > 2){
                 return res.json({
                     message: "Этот аккаунт больше нельзя использовать на этом устройстве, войдите с первого устроиства"
